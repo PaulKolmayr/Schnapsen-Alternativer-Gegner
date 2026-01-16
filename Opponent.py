@@ -387,6 +387,7 @@ class Opponent:
         """
         Opponen
         """
+        self._plays_pair = False
         #Opponent assesses the risk of losing each card he is able to play
         risk_values_early = self.risk_system_early_game(trumpf, deck, player_cards)
         risk_values_late = self.risk_system_late_game(trumpf, deck, player_cards)

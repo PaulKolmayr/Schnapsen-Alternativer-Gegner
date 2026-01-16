@@ -38,6 +38,7 @@ class SingleGame:
         self._deck_closed = False
         self._wins = [0, 0]
         self._all_played_cards = []
+        self._game_counter = 10
 
     @property
     def show_trumpf(self):
@@ -113,7 +114,7 @@ class SingleGame:
             closedeck_question = self._controls.close_the_deck()
             self._deck_closed = self._rules.zudrehen(closedeck_question)
             if self._deck_closed == True:
-                game_counter = 5
+                self._game_counter = 5
                 self._controls.deck_is_closed()
     
 
@@ -180,7 +181,7 @@ class SingleGame:
         Then, it is inspected which card the player can play, he gets to choose his card and he plays it.
         """
         #Opponent plays first
-        self._opponent_card = self._opponent.plays_first(self._points._points_opponent, self._trumpf)
+        self._opponent_card = self._opponent.play_first_new(self._points._points_opponent, self._trumpf, self._all_played_cards, self._cards._deck, self._player._hand, self._game_counter)
         self._battleground.append(self._opponent_card)
         self._controls.opponentcard_played(self._opponent_card)
 
@@ -260,10 +261,9 @@ class SingleGame:
         If the game has ended, work out how many points who has won
         """
         self.game_start()
-        game_counter = 10
         while self._points._points_player < 66 and self._points._points_opponent < 66 and len(self._player._hand) > 0:
-            print(f"Runde {game_counter}")
             self._controls.break_between_games()
+            print(f"Runde {self._game_counter}")
 
             self._battleground = []
             if self._player_starts == True:
@@ -306,7 +306,7 @@ class SingleGame:
                 #Drawing Cards and who starts the next cards
                 self.drawing_cards_after_round()
 
-            game_counter -= 1
+            self._game_counter -= 1
 
         self._wins = self._points.win_counter()
 

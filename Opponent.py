@@ -361,8 +361,27 @@ class Opponent:
         pass
     
     
-    def which_play(self, roundcounter)
+    def which_play(self, roundcounter):
+        """
+        coming soon
+        """
+        importance = roundcounter/10
 
+        factors =  {'early_risk_factor': 0.8*(importance), 
+                    'late_risk_factor': 1.2*(1-(importance)), 
+                    'dynamic_rating_factor': 0.4 + 0.5*(1-(importance)),
+                    'pair_possibility_factor': 0.5*(importance),
+                    'pair_on_hand_factor': 0.5 + (importance)}
+
+        return factors
+
+
+    def expected_points(self, trumpf, deck, playerhand):
+        """
+        coming soon
+        """
+        pass
+        
 
     def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards, roundcounter):
         """
@@ -372,7 +391,26 @@ class Opponent:
         risk_values_early = self.risk_system_early_game(trumpf, deck, player_cards)
         risk_values_late = self.risk_system_late_game(trumpf, deck, player_cards)
         card_strength = self.dynamic_value(trumpf, played_cards)
+        pair_part = self.part_of_pair(trumpf)
+        pair_possibility = self.pair_possibility(trumpf, played_cards)
+        round_factor = self.which_play(roundcounter)
 
+        playing_recommendation = {}
+        for card in self._hand:
+            score = (round_factor['early_risk_factor'] * risk_values_early[card]) + (round_factor['late_risk_factor'] * risk_values_late[card]) + (round_factor['dynamic_rating_factor'] * card_strength[card]) + (round_factor['pair_on_hand_factor'] * pair_part[card]) + (round_factor['pair_possibility_factor'] * pair_possibility[card])
+            playing_recommendation[card] = score
+
+        recommended_card = max(playing_recommendation, key=playing_recommendation.get)
+
+        if recommended_card.rank.name == "König":
+            for cards in self._hand:
+                if cards.rank.name == "Dame" and cards.suit.name == recommended_card.suit.name:
+                    print(f"Der Gegner spielt das {recommended_card.suit.name}-Paar aus!")
+                    self._plays_pair = True
+        
+        print(playing_recommendation)
+        self._hand.remove(recommended_card)
+        return recommended_card
 
 
     def plays_second(self, zugedreht, playcard, trumpf):

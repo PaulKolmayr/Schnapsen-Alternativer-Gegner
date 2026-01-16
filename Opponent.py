@@ -289,19 +289,58 @@ class Opponent:
 
 
     def part_of_pair(self, trumpf):
-        
-        for card in self._hand:
-            if card.rank.name == 'König' or card.rank.name == 'Dame':
-                for card in 
-            else:
-                pass
+        pair_part = {card: 0 for card in self._hand}
+        for card_a in self._hand:
+            for card_b in self._hand:
+                if card_a.rank.name == 'König': 
+                    if card_b.rank.name == 'Dame' and card_a.suit.name == card_b.suit.name:
+                        if card_a.suit.name == trumpf.suit.name:
+                            pair_part[card_a] = 2
+                            pair_part[card_b] = 2
+                        elif card_a.suit.name != trumpf.suit.name:
+                            pair_part[card_a] = 1
+                            pair_part[card_b] = 1            
+
+        return pair_part
+
+    def pair_possibility(self, trumpf, played_cards):
+        pair_possibility = {card: 0 for card in self._hand}
+
+        for king in self._hand:
+            if king.rank.name == 'König':
+                poss_score = 0
+                for pos_dame in played_cards:
+                    if pos_dame.rank.name == 'Dame' and pos_dame.suit.name == king.suit.name:
+                        poss_score += 1
+                for act_dame in self._hand:
+                    if act_dame.rank.name == 'Dame' and act_dame.suit.name == king.suit.name:
+                        poss_score += 1
+                if poss_score == 0:
+                    if king.suit.name == trumpf.suit.name:
+                        pair_possibility[king] = 2
+                    else:
+                        pair_possibility[king] = 1
+            
+        for dame in self._hand:
+            if dame.rank.name == 'Dame':
+                poss_score = 0
+                for pos_king in played_cards:
+                    if pos_king.rank.name == 'König' and pos_king.suit.name == dame.suit.name:
+                        poss_score += 1
+                for act_king in self._hand:
+                    if act_king.rank.name == 'König' and act_king.suit.name == dame.suit.name:
+                        poss_score += 1
+                if poss_score == 0:
+                    if dame.suit.name == trumpf.suit.name:
+                        pair_possibility[dame] = 2
+                    else:
+                        pair_possibility[dame] = 1
+                    
+        return pair_possibility
     
 
-    def pair_possibility(self, trumpf):
-
-        for card in self._hand:
-            if card.rank.name == 'König' or card.rank.name == 'Dame' and card.suit.name == trumpf.suit.name:
-                
+    def colour_strength(self):
+        
 
 
     def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards):

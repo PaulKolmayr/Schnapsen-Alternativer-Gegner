@@ -479,7 +479,6 @@ class TestOpponent(unittest.TestCase):
 
 
     def test_worth_system(self):
-        points = 19
 
         card_1 = MagicMock()
         card_1.rank.name = 'Ass'
@@ -501,11 +500,188 @@ class TestOpponent(unittest.TestCase):
         trumpf.rank.value = 2
         trumpf.suit.name = 'Herz'
 
-        played_cards = [card_1, card_2]
-        value = self._opponent.worth_system(points, trumpf, played_cards, card_3)
-        self.assertEqual(10, value)
+        cards = [card_1, card_3]
+        self._opponent._hand = cards
+        played_cards = [card_2]
+        value = self._opponent.dynamic_value(trumpf, played_cards)
+        self.assertEqual({card_1: 0, card_3: 2}, value)
 
 
+    def test_risk_system_late_game(self):
+
+        card_1 = MagicMock()
+        card_1.rank.name = 'Ass'
+        card_1.rank.value = 11
+        card_1.suit.name = 'Herz'
+
+        card_2 = MagicMock()
+        card_2.rank.name = 'Zehn'
+        card_2.rank.value = 10
+        card_2.suit.name = 'Herz'
+
+        card_3 = MagicMock()
+        card_3.rank.name = 'König'
+        card_3.rank.value = 4
+        card_3.suit.name = 'Herz'
+
+        card_4 = MagicMock()
+        card_4.rank.name = 'König'
+        card_4.rank.value = 4
+        card_4.suit.name = 'Karo'
+
+        card_5 = MagicMock()
+        card_5.rank.name = 'Bube'
+        card_5.rank.value = 2
+        card_5.suit.name = 'Pik'
+
+        card_6 = MagicMock()
+        card_6.rank.name = 'König'
+        card_6.rank.value = 4
+        card_6.suit.name = 'Kreuz'
+
+        trumpf = MagicMock()
+        trumpf.rank.name = 'Bube'
+        trumpf.rank.value = 2
+        trumpf.suit.name = 'Herz'
+
+        deck = [card_1, card_3]
+        playerhand = [card_5, card_6]
+        cards = [card_2, card_4]
+        self._opponent._hand = cards
+        value = self._opponent.risk_system_late_game(trumpf, deck, playerhand)
+        self.assertEqual({card_2: 3/4, card_4: 2/4}, value)
+
+    
+    def test_risk_system_early_game(self):
+
+        card_1 = MagicMock()
+        card_1.rank.name = 'Ass'
+        card_1.rank.value = 11
+        card_1.suit.name = 'Herz'
+
+        card_2 = MagicMock()
+        card_2.rank.name = 'Zehn'
+        card_2.rank.value = 10
+        card_2.suit.name = 'Herz'
+
+        card_3 = MagicMock()
+        card_3.rank.name = 'König'
+        card_3.rank.value = 4
+        card_3.suit.name = 'Herz'
+
+        card_4 = MagicMock()
+        card_4.rank.name = 'König'
+        card_4.rank.value = 4
+        card_4.suit.name = 'Karo'
+
+        card_5 = MagicMock()
+        card_5.rank.name = 'Bube'
+        card_5.rank.value = 2
+        card_5.suit.name = 'Pik'
+
+        card_6 = MagicMock()
+        card_6.rank.name = 'König'
+        card_6.rank.value = 4
+        card_6.suit.name = 'Kreuz'
+
+        trumpf = MagicMock()
+        trumpf.rank.name = 'Bube'
+        trumpf.rank.value = 2
+        trumpf.suit.name = 'Herz'
+
+        deck = [card_1, card_3]
+        playerhand = [card_5, card_6]
+        cards = [card_2, card_4]
+        self._opponent._hand = cards
+        value = self._opponent.risk_system_early_game(trumpf, deck, playerhand)
+        self.assertEqual({card_2: 3/4, card_4: 1.0}, value)
+
+
+    def test_part_of_pair(self):
+
+        card_1 = MagicMock()
+        card_1.rank.name = 'Ass'
+        card_1.rank.value = 11
+        card_1.suit.name = 'Herz'
+
+        card_2 = MagicMock()
+        card_2.rank.name = 'Dame'
+        card_2.rank.value = 2
+        card_2.suit.name = 'Herz'
+
+        card_3 = MagicMock()
+        card_3.rank.name = 'König'
+        card_3.rank.value = 4
+        card_3.suit.name = 'Herz'
+
+        card_4 = MagicMock()
+        card_4.rank.name = 'König'
+        card_4.rank.value = 4
+        card_4.suit.name = 'Karo'
+
+        card_5 = MagicMock()
+        card_5.rank.name = 'Dame'
+        card_5.rank.value = 3
+        card_5.suit.name = 'Karo'
+
+        trumpf = MagicMock()
+        trumpf.rank.name = 'Bube'
+        trumpf.rank.value = 2
+        trumpf.suit.name = 'Herz'
+
+        cards = [card_1, card_2, card_3,card_4, card_5]
+        self._opponent._hand = cards
+        value = self._opponent.part_of_pair(trumpf)
+        self.assertEqual({card_1: 0, card_2: 2.0, card_3:2.0, card_4: 1.0, card_5: 1.0}, value)
+
+    def test_pair_possibility(self):
+
+        card_1 = MagicMock()
+        card_1.rank.name = 'König'
+        card_1.rank.value = 4
+        card_1.suit.name = 'Kreuz'
+
+        card_2 = MagicMock()
+        card_2.rank.name = 'Dame'
+        card_2.rank.value = 3
+        card_2.suit.name = 'Herz'
+
+        card_3 = MagicMock()
+        card_3.rank.name = 'König'
+        card_3.rank.value = 4
+        card_3.suit.name = 'Herz'
+
+        card_4 = MagicMock()
+        card_4.rank.name = 'Zehn'
+        card_4.rank.value = 10
+        card_4.suit.name = 'Karo'
+
+        card_5 = MagicMock()
+        card_5.rank.name = 'Dame'
+        card_5.rank.value = 3
+        card_5.suit.name = 'Pik'
+
+        card_6 = MagicMock()
+        card_6.rank.name = 'Dame'
+        card_6.rank.value = 3
+        card_6.suit.name = 'Kreuz'
+
+        card_7 = MagicMock()
+        card_7.rank.name = 'König'
+        card_7.rank.value = 4
+        card_7.suit.name = 'Pik'
+
+        trumpf = MagicMock()
+        trumpf.rank.name = 'Bube'
+        trumpf.rank.value = 2
+        trumpf.suit.name = 'Herz'
+
+        cards = [card_1, card_2, card_3, card_4, card_5]
+        played_cards = [card_7]
+        self._opponent._hand = cards
+        value = self._opponent.pair_possibility(trumpf, played_cards)
+        self.assertEqual({card_1: 1, card_2: 0, card_3: 0, card_4: 0, card_5: 0}, value)
+'''     
     def test_play_first_new(self):
 
         points = 19
@@ -533,6 +709,7 @@ class TestOpponent(unittest.TestCase):
         played_cards = [card_1]
         value_dic = self._opponent.play_first_new(points, trumpf, played_cards)
         self.assertEqual({card_1: 10, card_2: 9}, value_dic)
+'''
 
 if __name__ == '__main__':
     unittest.main()

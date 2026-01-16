@@ -160,7 +160,7 @@ class Opponent:
         or get an easy win
         """
         #base point system
-        card_strengths = {}
+        card_missmatch = {missmatch: 0 for missmatch in self._hand}
         for card in self._hand:
             if card.rank.name == 'Ass':
                 card_value = 5
@@ -184,14 +184,14 @@ class Opponent:
             for done_card in played_cards:
                 if done_card.suit.name == card.suit.name and done_card.rank.value > card.rank.value:
                     card_value += 1
+                    card_missmatch[card] += 1
             
             for op_card in self._hand:
                 if op_card.suit.name == card.suit.name and op_card.rank.value > card.rank.value:
                     card_value += 1
-            
-            card_strengths[card] = card_value
-
-        return card_value
+                    card_missmatch[card] += 1
+        
+        return card_missmatch
     
 
     def risk_system_late_game(self, trumpf, deck, playerhand):
@@ -215,6 +215,8 @@ class Opponent:
             if op_card.suit.name == trumpf.suit.name:
                 for item in unknown_cards:
                     if item.suit.name != trumpf.suit.name:
+                        worse_cards.append(item)
+                    elif item.suit.name == trumpf.suit.name and item.rank.value < op_card.rank.value:
                         worse_cards.append(item)
             elif op_card.suit.name != trumpf.suit.name:
                 for item in unknown_cards:
@@ -251,11 +253,11 @@ class Opponent:
                 unknown_cards.append(cards)
                 unknown_cards_no_trumpf.append(cards)
         for handcards in playerhand:
-            if cards.suit.name == trumpf.suit.name:
+            if handcards.suit.name == trumpf.suit.name:
                 unknown_cards.append(handcards)
             else:
-                unknown_cards.append(cards)
-                unknown_cards_no_trumpf.append(cards)
+                unknown_cards.append(handcards)
+                unknown_cards_no_trumpf.append(handcards)
         
         #Opponent checks his unknown cards for cards that would lose against his card
         risk_values = {}
@@ -265,25 +267,37 @@ class Opponent:
                 for item in unknown_cards:
                     if item.suit.name != trumpf.suit.name:
                         worse_cards.append(item)
+                    elif item.rank.value < op_card.rank.value:
+                        worse_cards.append(item)
+
             elif op_card.suit.name != trumpf.suit.name:
-                for item in unknown_cards:
-                    if item.suit.name != trumpf.suit.name and item.suit.name != op_card.suit.name:
-                        worse_cards.append(item)
-                    elif item.suit.name == op_card.suit.name and item.rank.value < op_card.rank.value:
-                        worse_cards.append(item)
-            
-            #He assesses the risk level of playing each card by dividing all better cards by all unknown cards
-            #and multiplying this with the points he stands to lose if he loses the card
-            if len(unknown_cards) > 0:
-                if op_card.suit.name != trumpf.suit.name and op_card.rank.value < 5:
+                if op_card.rank.value > 5:
+                    for item in unknown_cards:
+                        if item.suit.name != trumpf.suit.name and item.suit.name != op_card.suit.name:
+                            worse_cards.append(item)
+                        elif item.suit.name == op_card.suit.name and item.rank.value < op_card.rank.value:
+                            worse_cards.append(item)
+                else:
+                    for item in unknown_cards_no_trumpf:
+                        if item.suit.name != trumpf.suit.name and item.suit.name != op_card.suit.name:
+                            worse_cards.append(item)
+                        elif item.suit.name == op_card.suit.name and item.rank.value < op_card.rank.value:
+                            worse_cards.append(item)
+
+            if op_card.suit.name != trumpf.suit.name and op_card.rank.value < 5:
+                if len(unknown_cards_no_trumpf) > 0:
                     risk_level = (len(worse_cards)/len(unknown_cards_no_trumpf))
                     risk_values[op_card] = risk_level
                 else:
-                    risk_level = (len(worse_cards)/len(unknown_cards))
+                    risk_level = (len(worse_cards)/1)
                     risk_values[op_card] = risk_level
             else:
-                risk_level = (len(worse_cards)/1)
-                risk_values[op_card] = risk_level
+                if len(unknown_cards) > 0:
+                    risk_level = (len(worse_cards)/len(unknown_cards))
+                    risk_values[op_card] = risk_level
+                else:
+                    risk_level = (len(worse_cards)/1)
+                    risk_values[op_card] = risk_level
 
         return risk_values
 
@@ -303,6 +317,7 @@ class Opponent:
 
         return pair_part
 
+
     def pair_possibility(self, trumpf, played_cards):
         pair_possibility = {card: 0 for card in self._hand}
 
@@ -317,9 +332,9 @@ class Opponent:
                         poss_score += 1
                 if poss_score == 0:
                     if king.suit.name == trumpf.suit.name:
-                        pair_possibility[king] = 2
+                        pair_possibility[king] += 2
                     else:
-                        pair_possibility[king] = 1
+                        pair_possibility[king] += 1
             
         for dame in self._hand:
             if dame.rank.name == 'Dame':
@@ -332,18 +347,24 @@ class Opponent:
                         poss_score += 1
                 if poss_score == 0:
                     if dame.suit.name == trumpf.suit.name:
-                        pair_possibility[dame] = 2
+                        pair_possibility[dame] += 2
                     else:
-                        pair_possibility[dame] = 1
+                        pair_possibility[dame] += 1
                     
         return pair_possibility
     
 
-    def colour_strength(self):
-        
+    def colour_strength(self, played_cards):
+        """
+        Under construction, need to consult with my expert
+        """
+        pass
+    
+    
+    def which_play(self, roundcounter)
 
 
-    def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards):
+    def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards, roundcounter):
         """
         Opponen
         """

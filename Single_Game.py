@@ -113,6 +113,7 @@ class SingleGame:
             closedeck_question = self._controls.close_the_deck()
             self._deck_closed = self._rules.zudrehen(closedeck_question)
             if self._deck_closed == True:
+                game_counter = 5
                 self._controls.deck_is_closed()
     
 
@@ -259,8 +260,9 @@ class SingleGame:
         If the game has ended, work out how many points who has won
         """
         self.game_start()
+        game_counter = 10
         while self._points._points_player < 66 and self._points._points_opponent < 66 and len(self._player._hand) > 0:
-            
+            print(f"Runde {game_counter}")
             self._controls.break_between_games()
 
             self._battleground = []
@@ -304,6 +306,7 @@ class SingleGame:
                 #Drawing Cards and who starts the next cards
                 self.drawing_cards_after_round()
 
+            game_counter -= 1
 
         self._wins = self._points.win_counter()
 

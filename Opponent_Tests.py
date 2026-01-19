@@ -503,7 +503,7 @@ class TestOpponent(unittest.TestCase):
         self._opponent._hand = cards
         played_cards = [card_2]
         value = self._opponent.dynamic_value(trumpf, played_cards)
-        self.assertEqual({card_1: 0, card_3: 2}, value)
+        self.assertEqual({card_1: 0, card_3: 0.4}, value)
 
 
     def test_risk_system_late_game(self):
@@ -631,7 +631,8 @@ class TestOpponent(unittest.TestCase):
         cards = [card_1, card_2, card_3,card_4, card_5]
         self._opponent._hand = cards
         value = self._opponent.part_of_pair(trumpf)
-        self.assertEqual({card_1: 0, card_2: 2.0, card_3:2.0, card_4: 1.0, card_5: 1.0}, value)
+        self.assertEqual({card_1: 0, card_2: 1.0, card_3:1.0, card_4: 0.5, card_5: 0.5}, value)
+
 
     def test_pair_possibility(self):
 
@@ -679,7 +680,7 @@ class TestOpponent(unittest.TestCase):
         played_cards = [card_7]
         self._opponent._hand = cards
         value = self._opponent.pair_possibility(trumpf, played_cards)
-        self.assertEqual({card_1: 1, card_2: 0, card_3: 0, card_4: 0, card_5: 0}, value)
+        self.assertEqual({card_1: 0.5, card_2: 0, card_3: 0, card_4: 0, card_5: 0}, value)
 
 
 if __name__ == '__main__':

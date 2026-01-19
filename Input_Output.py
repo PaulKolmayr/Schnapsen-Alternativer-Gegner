@@ -136,3 +136,7 @@ class InputOutput:
         print(f"Spieler: {player_points}")
         print(f"Gegner: {opponent_points}")
         print()
+
+    def which_opponent(self):
+        answer = input("Welcher Gegner soll spielen?(Einfach/Schwer) ")
+        return answer

@@ -430,7 +430,7 @@ class Opponent:
                     print(f"Der Gegner spielt das {recommended_card.suit.name}-Paar aus!")
                     self._plays_pair = True
         
-        print(playing_recommendation)
+        #print(playing_recommendation)
         self._hand.remove(recommended_card)
         return recommended_card
 

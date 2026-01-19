@@ -39,6 +39,7 @@ class SingleGame:
         self._wins = [0, 0]
         self._all_played_cards = []
         self._game_counter = 10
+        self._which_opponent = None
 
     @property
     def show_trumpf(self):
@@ -57,13 +58,12 @@ class SingleGame:
         Players draw their cards, the trumpf is drawn, and input on who dealt the cards is asked for. Based on this
         input, the starter is decided.
         """
-        #start procedure
+    
         self._cards.shuffle()
         self._player.first_draw()
         self._opponent.first_draw()
         
-        ###########Terminal interaction
-        
+        self._which_opponent = self._controls.which_opponent()
         dealer = self._controls.who_has_dealt()
         self._controls.starter_message(dealer)
         self._player_starts = self._rules.who_starts(dealer)
@@ -181,7 +181,10 @@ class SingleGame:
         Then, it is inspected which card the player can play, he gets to choose his card and he plays it.
         """
         #Opponent plays first
-        self._opponent_card = self._opponent.play_first_new(self._points._points_opponent, self._trumpf, self._all_played_cards, self._cards._deck, self._player._hand, self._game_counter)
+        if self._which_opponent == "Schwer":
+            self._opponent_card = self._opponent.play_first_new(self._points._points_opponent, self._trumpf, self._all_played_cards, self._cards._deck, self._player._hand, self._game_counter)
+        else:
+            self._opponent_card = self._opponent.plays_first(self._points._points_opponent, self._trumpf)
         self._battleground.append(self._opponent_card)
         self._controls.opponentcard_played(self._opponent_card)
 
@@ -221,7 +224,7 @@ class SingleGame:
         """
         self._all_played_cards.append(self._player_card)
         self._all_played_cards.append(self._opponent_card)
-        print(self._all_played_cards)
+        #print(self._all_played_cards)
         if self._points._who_won == 'Spieler':
             if self._deck_closed == False:
                 self._player.normal_draw(self._trumpf)

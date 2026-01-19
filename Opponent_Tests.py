@@ -253,7 +253,6 @@ class TestOpponent(unittest.TestCase):
         self.assertFalse(self._opponent._plays_pair)
         self.assertNotIn(card_3, self._opponent._hand)
 
-    
 
     def test_plays_no_pair(self):
         card_1 = MagicMock()
@@ -681,35 +680,7 @@ class TestOpponent(unittest.TestCase):
         self._opponent._hand = cards
         value = self._opponent.pair_possibility(trumpf, played_cards)
         self.assertEqual({card_1: 1, card_2: 0, card_3: 0, card_4: 0, card_5: 0}, value)
-'''     
-    def test_play_first_new(self):
 
-        points = 19
-
-        card_1 = MagicMock()
-        card_1.rank.name = 'Ass'
-        card_1.rank.value = 11
-        card_1.suit.name = 'Herz'
-
-        card_2 = MagicMock()
-        card_2.rank.name = 'Zehn'
-        card_2.rank.value = 10
-        card_2.suit.name = 'Herz'
-
-        card_3 = MagicMock()
-        card_3.rank.name = 'König'
-        card_3.rank.value = 4
-        card_3.suit.name = 'Herz'
-
-        trumpf = MagicMock()
-        trumpf.rank.name = 'Bube'
-        trumpf.rank.value = 2
-        trumpf.suit.name = 'Herz'
-
-        played_cards = [card_1]
-        value_dic = self._opponent.play_first_new(points, trumpf, played_cards)
-        self.assertEqual({card_1: 10, card_2: 9}, value_dic)
-'''
 
 if __name__ == '__main__':
     unittest.main()

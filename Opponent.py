@@ -163,33 +163,33 @@ class Opponent:
         card_missmatch = {missmatch: 0 for missmatch in self._hand}
         for card in self._hand:
             if card.rank.name == 'Ass':
-                card_value = 5
-            elif card.rank.name == 'Zehn':
-                card_value = 4
-            elif card.rank.name == 'König':
-                card_value = 3
-            elif card.rank.name == 'Dame':
-                card_value = 2
-            elif card.rank.name == 'Bube':
                 card_value = 1
+            elif card.rank.name == 'Zehn':
+                card_value = 0.8
+            elif card.rank.name == 'König':
+                card_value = 0.6
+            elif card.rank.name == 'Dame':
+                card_value = 0.4
+            elif card.rank.name == 'Bube':
+                card_value = 0.2
             
             #Opponent is simulated to be able to remember any card that has been played
             #If Opponent knows a card to be played, he can eliminate i
             if card.suit.name == trumpf.suit.name:
-                card_value += 5
+                card_value += 1
             
             #Opponent is simulated to be able to remember any card that has been played
             #If Opponent knows a card to be played, he can eliminate it from his thinking, if this card
             #is higher than his card, therefore his card is now worth more
             for done_card in played_cards:
                 if done_card.suit.name == card.suit.name and done_card.rank.value > card.rank.value:
-                    card_value += 1
-                    card_missmatch[card] += 1
+                    card_value += 0.2
+                    card_missmatch[card] += 0.2
             
             for op_card in self._hand:
                 if op_card.suit.name == card.suit.name and op_card.rank.value > card.rank.value:
-                    card_value += 1
-                    card_missmatch[card] += 1
+                    card_value += 0.2
+                    card_missmatch[card] += 0.2
         
         return card_missmatch
     
@@ -303,22 +303,31 @@ class Opponent:
 
 
     def part_of_pair(self, trumpf):
+        """
+        The deck is searched for pairs, if a card is part of a pair, it gets half a point "bonus" for the overall evaluation, if its part of the trumpf pair,
+        it gets a whole point
+        """
         pair_part = {card: 0 for card in self._hand}
         for card_a in self._hand:
             for card_b in self._hand:
                 if card_a.rank.name == 'König': 
                     if card_b.rank.name == 'Dame' and card_a.suit.name == card_b.suit.name:
                         if card_a.suit.name == trumpf.suit.name:
-                            pair_part[card_a] = 2
-                            pair_part[card_b] = 2
-                        elif card_a.suit.name != trumpf.suit.name:
                             pair_part[card_a] = 1
-                            pair_part[card_b] = 1            
+                            pair_part[card_b] = 1
+                        elif card_a.suit.name != trumpf.suit.name:
+                            pair_part[card_a] = 0.5
+                            pair_part[card_b] = 0.5          
 
         return pair_part
 
 
     def pair_possibility(self, trumpf, played_cards):
+        """
+        Method checks if a king or queen still has the potential to be important for a pair, ie if the second card that is needed has already been
+        played or not. Again, if not, the card gets a bonus of 0.5, if trumpf the bonus is 1.
+        Of course, is weighed substancially less than actual pair when weighed with the other factors.
+        """
         pair_possibility = {card: 0 for card in self._hand}
 
         for king in self._hand:
@@ -332,9 +341,9 @@ class Opponent:
                         poss_score += 1
                 if poss_score == 0:
                     if king.suit.name == trumpf.suit.name:
-                        pair_possibility[king] += 2
-                    else:
                         pair_possibility[king] += 1
+                    else:
+                        pair_possibility[king] += 0.5
             
         for dame in self._hand:
             if dame.rank.name == 'Dame':
@@ -347,9 +356,9 @@ class Opponent:
                         poss_score += 1
                 if poss_score == 0:
                     if dame.suit.name == trumpf.suit.name:
-                        pair_possibility[dame] += 2
-                    else:
                         pair_possibility[dame] += 1
+                    else:
+                        pair_possibility[dame] += 0.5
                     
         return pair_possibility
     
@@ -363,7 +372,8 @@ class Opponent:
     
     def which_play(self, roundcounter):
         """
-        coming soon
+        Basically, different factors factor into the game differently in different game phases
+        In this method, the factors get multiplied with a weight that depends on the amount of rounds yet to play
         """
         importance = roundcounter/10
 
@@ -385,7 +395,12 @@ class Opponent:
 
     def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards, roundcounter):
         """
-        Opponen
+        New, experimental set up for the opponent playing first: 
+        The method calls different methods to gain more knowledge about the game: For this reason ,(for now) it takes into account a risk evaluation 
+        that returns the probability of winning the round. It also takes into account real card strength and if the card is part of a pair as well as
+        if the card has potential to be in a pair
+        This (for now) is weighed depending on how many rounds are still to play and summed up to recommend the best to play card. This card is played
+        and if its part of a pair, the opponent calls the pair.
         """
         self._plays_pair = False
         #Opponent assesses the risk of losing each card he is able to play
@@ -406,6 +421,12 @@ class Opponent:
         if recommended_card.rank.name == "König":
             for cards in self._hand:
                 if cards.rank.name == "Dame" and cards.suit.name == recommended_card.suit.name:
+                    print(f"Der Gegner spielt das {recommended_card.suit.name}-Paar aus!")
+                    self._plays_pair = True
+        
+        if recommended_card.rank.name == "Dame":
+            for cards in self._hand:
+                if cards.rank.name == "König" and cards.suit.name == recommended_card.suit.name:
                     print(f"Der Gegner spielt das {recommended_card.suit.name}-Paar aus!")
                     self._plays_pair = True
         

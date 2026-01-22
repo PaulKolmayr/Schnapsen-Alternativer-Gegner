@@ -199,10 +199,14 @@ class TestPlayer(unittest.TestCase):
         card_3.rank.name = 'König'
         card_3.suit.name = 'Pik' 
 
+        trumpf = MagicMock()
+        trumpf.rank.name = 'König'
+        trumpf.suit.name = 'Karo'
+
         cards = [card_1, card_2, card_3]
         self._player._hand = cards
 
-        self._player.plays_second(op_card, zugedreht)
+        self._player.plays_second(op_card, zugedreht, trumpf)
         self.assertEqual(cards, self._player._playable)
 
 
@@ -225,11 +229,15 @@ class TestPlayer(unittest.TestCase):
         card_3.rank.name = 'König'
         card_3.suit.name = 'Pik' 
 
+        trumpf = MagicMock()
+        trumpf.rank.name = 'König'
+        trumpf.suit.name = 'Karo'
+
         cards = [card_1, card_2, card_3]
         control = [card_1, card_2]
         self._player._hand = cards
 
-        self._player.plays_second(op_card, zugedreht)
+        self._player.plays_second(op_card, zugedreht, trumpf)
         self.assertEqual(control, self._player._playable)
 
 

@@ -502,7 +502,8 @@ class TestOpponent(unittest.TestCase):
         cards = [card_1, card_3]
         self._opponent._hand = cards
         played_cards = [card_2]
-        value = self._opponent.dynamic_value(trumpf, played_cards)
+        roundcounter = 8
+        value = self._opponent.dynamic_value(trumpf, played_cards, roundcounter)
         self.assertEqual({card_1: 0, card_3: 0.4}, value)
 
 

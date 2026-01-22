@@ -152,7 +152,7 @@ class Opponent:
         return card
 
 
-    def dynamic_value(self, trumpf, played_cards):
+    def dynamic_value(self, trumpf, played_cards, roundcounter):
         """
         First Factor in how Opponent should play, should check how "out of position" a card is, therefore how much better
         it is compared to original value
@@ -173,11 +173,11 @@ class Opponent:
             elif card.rank.name == 'Bube':
                 card_value = 0.2
             
-            #Opponent is simulated to be able to remember any card that has been played
-            #If Opponent knows a card to be played, he can eliminate i
-            if card.suit.name == trumpf.suit.name:
-                card_value += 1
             
+            if card.suit.name == trumpf.suit.name:
+                card_value -= 1
+            
+
             #Opponent is simulated to be able to remember any card that has been played
             #If Opponent knows a card to be played, he can eliminate it from his thinking, if this card
             #is higher than his card, therefore his card is now worth more
@@ -388,9 +388,47 @@ class Opponent:
 
     def expected_points(self, trumpf, deck, playerhand):
         """
-        coming soon
+        Opponent can calculate the points a play is expected to make
+        Will at the time of submittal not be used because I have not yet found a way to weight the factors properly
         """
-        pass
+        exp_points = {card: 0 for card in self._hand}
+
+        unknown_cards = []
+        for stackcard in deck:
+            unknown_cards.append(stackcard)
+        for handcard in playerhand:
+            unknown_cards.append(handcard)
+        
+        for card in self._hand:
+            points = 0
+            for u_card in unknown_cards:
+                if card.suit.name == trumpf.suit.name:
+                    if u_card.suit.name != trumpf.suit.name:
+                        exp_points[card] += u_card.rank.value
+                        exp_points[card] += card.rank.value
+                    elif u_card.suit.name == trumpf.suit.name and u_card.rank.value < card.rank.value:
+                        exp_points[card] += u_card.rank.value
+                        exp_points[card] += card.rank.value
+                    else:
+                        exp_points[card] -= u_card.rank.value
+                        exp_points[card] -= card.rank.value
+                else:
+                    if u_card.suit.name != card.suit.name:
+                        if u_card.suit.name == trumpf.suit.name:
+                            exp_points[card] -= u_card.rank.value
+                            exp_points[card] -= card.rank.value
+                        else:
+                            exp_points[card] += u_card.rank.value
+                            exp_points[card] += card.rank.value
+                    else:
+                        if u_card.rank.name < card.rank.name:
+                            exp_points[card] += u_card.rank.value
+                            exp_points[card] += card.rank.value
+                        else:
+                            exp_points[card] -= u_card.rank.value
+                            exp_points[card] -= card.rank.value
+        
+            return exp_points
         
 
     def play_first_new(self, op_points, trumpf, played_cards, deck, player_cards, roundcounter):
@@ -406,7 +444,7 @@ class Opponent:
         #Opponent assesses the risk of losing each card he is able to play
         risk_values_early = self.risk_system_early_game(trumpf, deck, player_cards)
         risk_values_late = self.risk_system_late_game(trumpf, deck, player_cards)
-        card_strength = self.dynamic_value(trumpf, played_cards)
+        card_strength = self.dynamic_value(trumpf, played_cards, roundcounter)
         pair_part = self.part_of_pair(trumpf)
         pair_possibility = self.pair_possibility(trumpf, played_cards)
         round_factor = self.which_play(roundcounter)
@@ -456,7 +494,12 @@ class Opponent:
             for cards in self._hand:
                 if cards.suit.name == playcard.suit.name:
                     self._playable.append(cards)
-            
+
+            if len(self._playable) == 0:
+                for card in self._hand:
+                    if card.suit.name == trumpf.suit.name:
+                        self._playable.append(cards)
+
             if len(self._playable) == 0:
                 self._playable = [card for card in self._hand]
         
@@ -485,7 +528,10 @@ class Opponent:
             if len(trumpf_list) == 0:
                 op_card = lower_list[0]
             else:
-                op_card = trumpf_list[0]
+                if playcard.rank.value > 9:
+                    op_card = trumpf_list[0]
+                else:
+                    op_card = lower_list[0]
         else:
             op_card = higher_list[0]
 

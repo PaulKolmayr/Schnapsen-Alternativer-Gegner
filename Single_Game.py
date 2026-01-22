@@ -185,6 +185,7 @@ class SingleGame:
             self._opponent_card = self._opponent.play_first_new(self._points._points_opponent, self._trumpf, self._all_played_cards, self._cards._deck, self._player._hand, self._game_counter)
         else:
             self._opponent_card = self._opponent.plays_first(self._points._points_opponent, self._trumpf)
+        self._opponent.show_hand
         self._battleground.append(self._opponent_card)
         self._controls.opponentcard_played(self._opponent_card)
 
@@ -194,7 +195,7 @@ class SingleGame:
 
         legal_retort = False
         while legal_retort == False:
-            self._player.plays_second(self._opponent_card, self._deck_closed)
+            self._player.plays_second(self._opponent_card, self._deck_closed, self._trumpf)
             self._controls.show_playable_cards(self._player._playable)
             if self._deck_closed == True:
                 self._controls.show_trumpf_farbe(self._trumpf_farbe)

@@ -110,7 +110,7 @@ class Player:
         self._playable = [card for card in self._hand]
 
 
-    def plays_second(self, op_card, zugedreht):
+    def plays_second(self, op_card, zugedreht, trumpf):
         """
         If player plays second, depending on the status of the deck, there are different rules:
         If the deck is closed, he has to play a card of the same suit if he has one. If not, he is free to play any other card.
@@ -124,6 +124,11 @@ class Player:
                 if cards.suit.name == op_card.suit.name:
                     self._playable.append(cards)
             
+            if len(self._playable) == 0:
+                for cards in self._hand:
+                    if cards.suit.name == trumpf.suit.name:
+                     self._playable.append(cards)
+
             if len(self._playable) == 0:
                 self._playable = [card for card in self._hand]
         
